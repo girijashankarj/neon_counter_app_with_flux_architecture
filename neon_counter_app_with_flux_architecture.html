@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Counter App</title>
+    <style>
+        body {
+            background-color: #111;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        #app-container {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #app-title {
+            width: 40%;
+            text-align: center;
+            font-size: 3em;
+            color: #ff0066;
+            margin-right: 20px;
+            text-shadow: 0 0 10px rgba(255, 0, 102, 0.8);
+        }
+
+        #central-box {
+            width: 40%;
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            /* padding: 20px; */
+            border: 2px solid #00ffcc;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.5);
+            background-color: rgba(255, 255, 255, 0.1);
+            /* Glassy effect */
+        }
+
+        #counter-window {
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 20px;
+            width: 100%;
+            text-align: center;
+        }
+
+        #counter-value {
+            font-size: 5em;
+            color: #ff0066;
+        }
+
+        button {
+            width: 60%;
+            height: 50px;
+            background-color: #00ffcc;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bolder;
+            transition: background-color 0.3s, transform 0.3s, border 0.3s;
+        }
+
+        button:hover {
+            background-color: #111;
+            color: #00ffcc;
+            transform: scale(1.1);
+            border: 2px dashed #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app-container">
+        <div id="app-title">Flux Example in JS</div>
+        <div id="central-box">
+            <button id="increment" title="Click to increase">Increment</button>
+            <button id="decrement" title="Click to decrease">Decrement</button>
+            <div id="counter-window">
+                <div id="counter-value">0</div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const Dispatcher = {
+            callbacks: [],
+
+            register( callback ) {
+                this.callbacks.push( callback );
+            },
+
+            dispatch( action ) {
+                this.callbacks.forEach( callback => callback( action ) );
+            }
+        };
+
+        const CounterStore = {
+            state: {
+                count: 0
+            },
+
+            getState() {
+                return this.state;
+            },
+
+            handleAction( action ) {
+                if ( action.type === 'INCREMENT' ) {
+                    this.state.count += action.amount;
+                    this.emitChange();
+                } else if ( action.type === 'DECREMENT' ) {
+                    this.state.count -= action.amount;
+                    this.emitChange();
+                }
+            },
+
+            emitChange() {
+                const counterValueElement = document.getElementById( 'counter-value' );
+                counterValueElement.textContent = this.state.count;
+            }
+        };
+
+        const CounterView = {
+            init() {
+                CounterStore.emitChange();
+            }
+        };
+
+        function incrementCounter( amount ) {
+            return {
+                type: 'INCREMENT',
+                amount
+            };
+        }
+
+        function decrementCounter( amount ) {
+            return {
+                type: 'DECREMENT',
+                amount
+            };
+        }
+
+        Dispatcher.register( CounterStore.handleAction.bind( CounterStore ) );
+        CounterView.init();
+
+        const incrementButton = document.getElementById( 'increment' );
+        const decrementButton = document.getElementById( 'decrement' );
+
+        incrementButton.addEventListener( 'click', () => {
+            Dispatcher.dispatch( incrementCounter( 1 ) );
+        } );
+
+        decrementButton.addEventListener( 'click', () => {
+            Dispatcher.dispatch( decrementCounter( 1 ) );
+        } );
+    </script>
+</body>
+
+</html>
